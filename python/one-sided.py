@@ -16,9 +16,32 @@ if rank == 0:
     win = MPI.Win.Create(data, comm = W)
 else:
     data = np.empty(10, dtype = 'i')
-    win = MPI.Win.Create(data, comm = W)
+    win = MPI.Win.Create(None, comm = W)
 
-if rank != 0:
-    win.Get(data, 0)
+separate()
 
 print("{}: data: {}".format(rank, data))
+
+separate()
+
+win.Fence()
+
+if rank != 0:
+   win.Get(data, 0)
+
+win.Fence()
+
+print("{}: data: {}".format(rank, data))
+
+separate()
+
+if rank != 0:
+  win.Accumulate(data, 0, op = MPI.SUM)
+
+win.Fence()
+
+print("{}: data: {}".format(rank, data))
+
+win.Free()
+
+separate()
